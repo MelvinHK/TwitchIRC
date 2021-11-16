@@ -2,7 +2,7 @@ const tmi = require('tmi.js');
 const express = require('express');
 const app = express();
 
-const channelName = 'pokelawls';
+var channelName = 'pokelawls';
 var content = {};
 
 const client = new tmi.Client({

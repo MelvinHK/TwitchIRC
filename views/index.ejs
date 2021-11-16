@@ -12,12 +12,27 @@
 
 <body>
     <div class="container d-flex my-5">
-        <div class="mx-auto">
+        <div class="mx-auto pr-3">
             <h1>Twitch Chat Relay</h1>
-            <h3>Currently Relaying: <%= channelName %>
+            <h3>
+                Currently Relaying: <%= channelName %>
             </h3>
+            <div class="my-4">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Channel name">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button">Relay</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Filter options</h5>
+                        <p class="card-text">Soon</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="mx-auto card overflow-auto" style="width: 50%; height: 490px; flex-direction: column-reverse;">
+        <div class="mx-auto card overflow-auto" style="width: 50%; height: 588px; flex-direction: column-reverse;">
             <ul id="messages" class="list-group list-group-flush"></ul>
         </div>
     </div>

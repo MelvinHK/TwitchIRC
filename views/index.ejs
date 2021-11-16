@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch Chat Relay</title>
+</head>
+
+<body>
+    <div class="container d-flex my-5">
+        <div class="mx-auto">
+            <h1>Twitch Chat Relay</h1>
+            <h3>Currently Relaying: <%= channelName %>
+            </h3>
+        </div>
+        <div class="mx-auto card overflow-auto" style="width: 50%; height: 490px; flex-direction: column-reverse;">
+            <ul id="messages" class="list-group list-group-flush"></ul>
+        </div>
+    </div>
+    <script>
+        let messages = [];
+        let ids = [];
+        setInterval(function () {
+            const req = new XMLHttpRequest();
+            req.overrideMimeType("application/json");
+            req.open("GET", "/messages", true);
+            req.onload = function () {
+                var content = JSON.parse(req.response);
+                if (content.id != ids[ids.length - 1]) { //so the previous message isn't displayed again each interval
+                    messages.push(content.message);
+                    ids.push(content.id);
+                    if (ids.length > 100) {
+                        messages.shift();
+                        ids.shift();
+                    }
+                }
+                document.getElementById("messages").innerHTML = messages.map(i => `<li class="list-group-item">${i}</li>`).join('');
+            }
+            req.send();
+        }, 100);
+    </script>
+</body>
+
+</html>

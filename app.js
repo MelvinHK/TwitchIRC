@@ -1,6 +1,7 @@
 const tmi = require('tmi.js');
 const express = require('express');
 const app = express();
+const port = 4000;
 
 var channelName = 'pokelawls';
 var content = {};
@@ -29,4 +30,4 @@ app.get('/messages', (req, res) => {
     res.json(content);
 });
 
-app.listen(4000, () => console.log('Example app listening on port 4000!'));
+app.listen(port, () => console.log(`Twitch relay web app, listening at port ${port}`));

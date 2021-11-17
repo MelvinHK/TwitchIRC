@@ -9,6 +9,5 @@ Setup:
 4. input valid channel name in the relay search bar
 
 Planned features:  
-- Channel name search
 - Filter messages by sender's name/message content
 - Twitch emotes

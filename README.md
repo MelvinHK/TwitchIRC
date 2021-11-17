@@ -4,9 +4,9 @@ Relays the chatroom of a specified channel name.
 
 Setup:
 1. npm init
-2. (currently need to specify channel name in app.js using channelName)
-3. npm start
-4. open browser and navigate to http://localhost:4000/
+2. npm start
+3. open browser and navigate to http://localhost:4000/
+4. input valid channel name in the relay search bar
 
 Planned features:  
 - Channel name search

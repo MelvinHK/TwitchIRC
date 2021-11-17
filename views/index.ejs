@@ -11,17 +11,17 @@
 </head>
 
 <body>
-    <div class="container d-flex my-5">
-        <div class="mx-auto pr-3">
+    <div class="container row mx-auto my-5">
+        <div class="col-sm-5 mx-auto">
             <h1>Twitch Chat Relay</h1>
-            <h3>
-                Currently Relaying: <%= channelName %>
-            </h3>
+            <h5>Currently relaying: <span style="font-weight: normal;">
+                    <%= currentChannel %>
+                </span></h5>
             <div class="my-4">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Channel name">
+                <div class="input-group mb-3 w-100">
+                    <input id="channelSearch" type="text" class="form-control" placeholder="Channel name">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button">Relay</button>
+                        <button class="btn btn-outline-secondary" type="button" onClick="search()">Relay</button>
                     </div>
                 </div>
                 <div class="card">
@@ -33,30 +33,47 @@
             </div>
         </div>
         <div class="mx-auto card overflow-auto" style="width: 50%; height: 588px; flex-direction: column-reverse;">
-            <ul id="messages" class="list-group list-group-flush"></ul>
+            <ul id="messages" class="list-group list-group-flush">
+                <li id="connectionMsg" class="list-group-item text-muted">Connecting...</li>
+            </ul>
         </div>
     </div>
     <script>
         let messages = [];
         let ids = [];
-        setInterval(function () {
-            const req = new XMLHttpRequest();
-            req.overrideMimeType("application/json");
-            req.open("GET", "/messages", true);
-            req.onload = function () {
-                var content = JSON.parse(req.response);
-                if (content.id != ids[ids.length - 1]) { //so the previous message isn't displayed again each interval
-                    messages.push(content.message);
-                    ids.push(content.id);
-                    if (ids.length > 100) {
-                        messages.shift();
-                        ids.shift();
+        setTimeout(function () {
+            setInterval(function () {
+                const req = new XMLHttpRequest();
+                req.overrideMimeType("application/json");
+                req.open("GET", "/messages", true);
+                req.onload = function () {
+                    var content = JSON.parse(req.response);
+                    if (content.id != ids[ids.length - 1]) { //so the previous message isn't displayed again each interval
+                        messages.push(content.message);
+                        ids.push(content.id);
+                        if (ids.length > 100) {
+                            messages.shift();
+                            ids.shift();
+                        }
                     }
+                    console.log(content)
+                    document.getElementById("messages").innerHTML = messages.map(i => `<li class="list-group-item">${i}</li>`).join('');
                 }
-                document.getElementById("messages").innerHTML = messages.map(i => `<li class="list-group-item">${i}</li>`).join('');
+                req.send();
+            }, 200);
+        }, 1000);
+        function search() {
+            var name = document.getElementById("channelSearch").value;
+            if (!name || name.match(/^\s*$/)) return; //cancel search if value is empty or just whitespaces
+            var content = {
+                "name": name
             }
-            req.send();
-        }, 100);
+            const req = new XMLHttpRequest();
+            req.open("POST", "/search", true);
+            req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+            req.send(JSON.stringify(content));
+            location.reload();
+        }
     </script>
 </body>
 

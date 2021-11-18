@@ -11,6 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({
     extended: true
 }));
+app.use(express.static(__dirname + '/views'));
 
 app.set('view engine', 'ejs');
 app.get('/', (req, res) => {
@@ -36,6 +37,7 @@ app.post('/search', (req, res) => {
     client.connect();
     client.on('message', (channel, tags, message, self) => {
         content = {
+            channel: channel.substring(1),
             message: `${tags['display-name']}: ${message}`,
             id: `${tags.id}`
         };

@@ -2,8 +2,7 @@
 <html lang="en">
 
 <head>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="bootstrap.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,14 +13,14 @@
     <div class="container row mx-auto my-5">
         <div class="col-sm-5 mx-auto">
             <h1>Twitch Chat Relay</h1>
-            <h5>Currently relaying: <span style="font-weight: normal;">
+            <h5>Currently relaying: <span id="channel" style="font-weight: normal;">
                     <%= currentChannel %>
                 </span></h5>
             <div class="my-4">
                 <div class="input-group mb-3 w-100">
-                    <input id="channelSearch" type="text" class="form-control" placeholder="Channel name">
+                    <input id="channelSearch" type="text" class="form-control" placeholder="Channel name" autofocus>
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" onClick="search()">Relay</button>
+                        <button id="relayBtn" class="btn btn-outline-secondary" type="button" onClick="search()">Relay</button>
                     </div>
                 </div>
                 <div class="card">
@@ -33,47 +32,61 @@
             </div>
         </div>
         <div class="mx-auto card overflow-auto" style="width: 50%; height: 588px; flex-direction: column-reverse;">
-            <ul id="messages" class="list-group list-group-flush">
-                <li id="connectionMsg" class="list-group-item text-muted">Connecting...</li>
+            <ul class="list-group list-group-flush">
+                <li id="connectionMsg" class="list-group-item text-muted"></li>
+                <span id="messages"></span>
             </ul>
         </div>
     </div>
     <script>
-        let messages = [];
-        let ids = [];
-        setTimeout(function () {
-            setInterval(function () {
-                const req = new XMLHttpRequest();
-                req.overrideMimeType("application/json");
-                req.open("GET", "/messages", true);
-                req.onload = function () {
-                    var content = JSON.parse(req.response);
-                    if (content.id != ids[ids.length - 1]) { //so the previous message isn't displayed again each interval
-                        messages.push(content.message);
-                        ids.push(content.id);
-                        if (ids.length > 100) {
-                            messages.shift();
-                            ids.shift();
-                        }
-                    }
-                    console.log(content)
-                    document.getElementById("messages").innerHTML = messages.map(i => `<li class="list-group-item">${i}</li>`).join('');
+        var newChannel = "";
+        var messages = [];
+        var ids = [];
+
+        //fetch messages
+        setInterval(async function () {
+            var content = await fetch("/messages").then(function (response) { return response.json(); });
+            if (content.id != ids[ids.length - 1] && (newChannel == "" || content.channel == newChannel)) { //so the previous message isn't displayed again each interval, and the previous channel's messages don't leak into the new one.
+                messages.push(content.message);
+                ids.push(content.id);
+                if (ids.length > 100) {
+                    messages.shift();
+                    ids.shift();
                 }
-                req.send();
-            }, 200);
-        }, 1000);
+            }
+            document.getElementById("messages").innerHTML = messages.map(i => `<li class="list-group-item">${i}</li>`).join('')
+        }, 200);
+
+        //channel search
         function search() {
             var name = document.getElementById("channelSearch").value;
-            if (!name || name.match(/^\s*$/)) return; //cancel search if value is empty or just whitespaces
-            var content = {
-                "name": name
+            if (!name || name.match(/^\s*$/)) return; //don't search if value is empty or just whitespaces
+            messages.length = 0;
+            ids.length = 0;
+            var data = {
+                name: name
             }
-            const req = new XMLHttpRequest();
-            req.open("POST", "/search", true);
-            req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-            req.send(JSON.stringify(content));
-            location.reload();
+            fetch("/search", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            newChannel = name;
+            var punc = name[name.length - 1] == "s" ? "'" : "'s";
+            document.getElementById("channel").innerHTML = name;
+            document.getElementById("connectionMsg").innerHTML = "Relaying " + name + punc + " chatroom";
         }
+
+        //submit input also when enter is pressed
+        var input = document.getElementById("channelSearch");
+        input.addEventListener("keyup", function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                document.getElementById("relayBtn").click();
+            }
+        });
     </script>
 </body>
 

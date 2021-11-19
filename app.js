@@ -38,8 +38,10 @@ app.post('/search', (req, res) => {
     client.on('message', (channel, tags, message, self) => {
         content = {
             channel: channel.substring(1),
-            message: `${tags['display-name']}: ${message}`,
-            id: `${tags.id}`
+            user: `${tags['display-name']}`,
+            message: `${message}`,
+            id: `${tags.id}`,
+            color: tags.color
         };
     });
 });

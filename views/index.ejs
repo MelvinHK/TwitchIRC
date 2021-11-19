@@ -16,53 +16,86 @@
             <h5>Currently relaying: <span id="channel" style="font-weight: normal;">
                     <%= currentChannel %>
                 </span></h5>
+            <!-- Search bar -->
             <div class="my-4">
                 <div class="input-group mb-3 w-100">
                     <input id="channelSearch" type="text" class="form-control" placeholder="Channel name" autofocus>
                     <div class="input-group-append">
-                        <button id="relayBtn" class="btn btn-outline-secondary" type="button" onClick="search()">Relay</button>
+                        <button id="relayBtn" class="btn btn-outline-secondary" type="button"
+                            onClick="search()">Relay</button>
                     </div>
                 </div>
+                <!-- Filter options -->
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body justify-content-center">
                         <h5 class="card-title">Filter options</h5>
-                        <p class="card-text">Soon</p>
+                        <div class="w-100">
+                            <input id="userSearch" type="text" class="form-control mb-3" placeholder="Username(s)">
+                            <div class="input-group mb-3">
+                                <input id="includes" type="text" class="form-control" placeholder="Includes">
+                                <input id="exludes" type="text" class="form-control" placeholder="Excludes">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col text-center">
+                                <button class="btn btn-outline-secondary" type="button" onclick="">Apply</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="">Clear</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- Chat -->
         <div class="mx-auto card overflow-auto" style="width: 50%; height: 588px; flex-direction: column-reverse;">
             <ul class="list-group list-group-flush">
-                <li id="connectionMsg" class="list-group-item text-muted"></li>
-                <span id="messages"></span>
+                <li id="connectionMsg" class="list-group-item text-muted border-0"></li>
+                <div id="messages"></div>
             </ul>
         </div>
     </div>
     <script>
         var newChannel = "";
-        var messages = [];
         var ids = [];
+        var maxMessages = 100;
+
+        var filtering = false;
+        var usernameFilter = [];
+        var includes = [];
+        var excludes = [];
 
         //fetch messages
         setInterval(async function () {
-            var content = await fetch("/messages").then(function (response) { return response.json(); });
-            if (content.id != ids[ids.length - 1] && (newChannel == "" || content.channel == newChannel)) { //so the previous message isn't displayed again each interval, and the previous channel's messages don't leak into the new one.
-                messages.push(content.message);
+            var content = await fetch("/messages").then(function (response) {
+                return response.json();
+            });
+            if (filter(content) && content.id != ids[ids.length - 1] && (newChannel == "" || content.channel == newChannel)) { //so the previous message isn't displayed again each interval, and the previous channel's messages don't leak into the new one.
+                var node = document.createElement("li");
+                node.setAttribute("id", content.id);
+                node.className = "list-group-item border-0";
+
+                var user = document.createTextNode(content.user);
+                var color = document.createElement("span");
+                color.style.cssText = "color: " + content.color + "; filter: brightness(85%);"; //apply username's color, decrease luminosity a bit
+                color.appendChild(user);
+
+                var message = document.createTextNode(": " + content.message);
+                node.appendChild(color);
+                node.appendChild(message);
+                document.getElementById("messages").appendChild(node);
                 ids.push(content.id);
-                if (ids.length > 100) {
-                    messages.shift();
+                if (document.getElementById("messages").getElementsByTagName("li").length > maxMessages) {
+                    document.getElementById(ids[0]).remove();
                     ids.shift();
                 }
             }
-            document.getElementById("messages").innerHTML = messages.map(i => `<li class="list-group-item">${i}</li>`).join('')
         }, 200);
 
         //channel search
         function search() {
             var name = document.getElementById("channelSearch").value;
             if (!name || name.match(/^\s*$/)) return; //don't search if value is empty or just whitespaces
-            messages.length = 0;
-            ids.length = 0;
+            clear();
             var data = {
                 name: name
             }
@@ -77,6 +110,17 @@
             var punc = name[name.length - 1] == "s" ? "'" : "'s";
             document.getElementById("channel").innerHTML = name;
             document.getElementById("connectionMsg").innerHTML = "Relaying " + name + punc + " chatroom";
+        }
+
+        //filter
+        function filter(content) {
+            return true;
+        }
+
+        //clear the chat
+        function clear() {
+            ids.length = 0;
+            document.getElementById("messages").innerHTML = null;
         }
 
         //submit input also when enter is pressed

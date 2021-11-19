@@ -41,6 +41,18 @@
   box-sizing: border-box;
 }
 
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: .45rem;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(27, 27, 27, 0.212);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-track{
+  background: transparent;
+}
+
 html {
   font-family: sans-serif;
   line-height: 1.15;
@@ -10221,4 +10233,3 @@ a.text-dark:hover, a.text-dark:focus {
     border-color: #dee2e6;
   }
 }
-/*# sourceMappingURL=bootstrap.css.map */

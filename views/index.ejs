@@ -14,11 +14,7 @@
         <div class="col-sm-5 mx-auto">
             <h1>Twitch Chat Relay</h1>
             <h5>Currently relaying: <span id="channel" class="text-muted" style="font-weight: normal;">
-                    <% if (currentChannel) { %>
-                        <%= currentChannel %>
-                            <% } else { %>
-                                none
-                                <% } %>
+                    <%= currentChannel %>
                 </span></h5>
             <!-- Search bar -->
             <div class="my-4">
@@ -53,7 +49,8 @@
                 </div>
                 <div class="row">
                     <div class="col text-center">
-                        <button id="pauseBtn" class="btn btn-outline-danger" style="font-family: 'Segoe UI Symbol'" onclick="stop()">&#x23F8</button>
+                        <button id="pauseBtn" class="btn btn-outline-danger" style="font-family: 'Segoe UI Symbol'"
+                            onclick="stop()">&#x23F8</button>
                     </div>
                 </div>
             </div>

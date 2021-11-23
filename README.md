@@ -17,3 +17,6 @@ Features:
 
 Planned features:  
 - Display messages' emotes
+
+Bugs:
+- Message filter by username(s) is not consistent

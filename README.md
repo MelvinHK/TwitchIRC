@@ -21,3 +21,5 @@ Relays the chatroom of a specified channel name.
 
 ## Bugs:
 - Message filter by username(s) is not consistent
+
+![image](https://user-images.githubusercontent.com/53848567/142985691-dc5f6828-c8fb-4fd6-92b2-e9d950c9991e.png)

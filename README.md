@@ -17,7 +17,7 @@ Relays the chatroom of a specified channel name.
 
 ## To do:  
 - Display messages' emotes
-- Error messasge for invalid channels
+- Error message for invalid channels
 
 ## Bugs:
 - Message filter by username(s) is not consistent

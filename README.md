@@ -2,7 +2,7 @@
 
 Relays the chatroom of a specified channel name.
 
-![image](https://user-images.githubusercontent.com/53848567/142985784-59027b47-9808-4fc1-9b8e-b6d85c9f9393.png)
+<img src="https://user-images.githubusercontent.com/53848567/142985784-59027b47-9808-4fc1-9b8e-b6d85c9f9393.png" width="100" height="100">
 
 ## Setup:
 1. npm init

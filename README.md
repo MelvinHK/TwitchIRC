@@ -8,6 +8,12 @@ Setup:
 3. open browser and navigate to http://localhost:4000/
 4. input valid channel name in the relay search bar
 
+Features:
+- Channel name search
+- Message filters
+    - By username(s)
+    - Includes/Excludes string(s)
+- Pause button
+
 Planned features:  
-- Filter messages by sender's name/message content
-- Twitch emotes
+- Display messages' emotes

@@ -15,8 +15,9 @@ Relays the chatroom of a specified channel name.
     - Include/Exclude string(s)
 - Pause button
 
-## Planned features:  
+## To do:  
 - Display messages' emotes
+- Error messasge for invalid channels
 
 ## Bugs:
 - Message filter by username(s) is not consistent

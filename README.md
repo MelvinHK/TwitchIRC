@@ -12,7 +12,7 @@ Features:
 - Channel name search
 - Message filters
     - By username(s)
-    - Includes/Excludes string(s)
+    - Include/Exclude string(s)
 - Pause button
 
 Planned features:  

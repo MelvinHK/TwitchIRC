@@ -2,6 +2,8 @@
 
 Relays the chatroom of a specified channel name.
 
+![image](https://user-images.githubusercontent.com/53848567/142985784-59027b47-9808-4fc1-9b8e-b6d85c9f9393.png)
+
 ## Setup:
 1. npm init
 2. npm start
@@ -21,5 +23,3 @@ Relays the chatroom of a specified channel name.
 
 ## Bugs:
 - Message filter by username(s) is not consistent
-
-![image](https://user-images.githubusercontent.com/53848567/142985691-dc5f6828-c8fb-4fd6-92b2-e9d950c9991e.png)

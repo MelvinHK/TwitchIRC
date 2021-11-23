@@ -13,8 +13,12 @@
     <div class="container row mx-auto my-5">
         <div class="col-sm-5 mx-auto">
             <h1>Twitch Chat Relay</h1>
-            <h5>Currently relaying: <span id="channel" style="font-weight: normal;">
-                    <%= currentChannel %>
+            <h5>Currently relaying: <span id="channel" class="text-muted" style="font-weight: normal;">
+                    <% if (currentChannel) { %>
+                        <%= currentChannel %>
+                            <% } else { %>
+                                none
+                                <% } %>
                 </span></h5>
             <!-- Search bar -->
             <div class="my-4">
@@ -26,22 +30,30 @@
                     </div>
                 </div>
                 <!-- Filter options -->
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body justify-content-center">
                         <h5 class="card-title">Filter options</h5>
                         <div class="w-100">
+                            <p class="text-muted">Seperate tags by commas</p>
                             <input id="userSearch" type="text" class="form-control mb-3" placeholder="Username(s)">
                             <div class="input-group mb-3">
                                 <input id="includes" type="text" class="form-control" placeholder="Includes">
-                                <input id="exludes" type="text" class="form-control" placeholder="Excludes">
+                                <input id="excludes" type="text" class="form-control" placeholder="Excludes">
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col text-center">
-                                <button class="btn btn-outline-secondary" type="button" onclick="">Apply</button>
-                                <button class="btn btn-outline-secondary" type="button" onclick="">Clear</button>
+                            <div class="col text-right">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="clearFilter()">Clear</button>
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="setFilter()">Apply</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <button id="pauseBtn" class="btn btn-outline-danger" style="font-family: 'Segoe UI Symbol'" onclick="stop()">&#x23F8</button>
                     </div>
                 </div>
             </div>
@@ -58,18 +70,20 @@
         var newChannel = "";
         var ids = [];
         var maxMessages = 100;
+        var rate = 100;
 
-        var filtering = false;
         var usernameFilter = [];
         var includes = [];
         var excludes = [];
 
+        var stopped = false;
+
         //fetch messages
-        setInterval(async function () {
+        async function fetchMessages() {
             var content = await fetch("/messages").then(function (response) {
                 return response.json();
             });
-            if (filter(content) && content.id != ids[ids.length - 1] && (newChannel == "" || content.channel == newChannel)) { //so the previous message isn't displayed again each interval, and the previous channel's messages don't leak into the new one.
+            if (content.id != ids[ids.length - 1] && (newChannel == "" || content.channel == newChannel) && filter(content)) { //so the previous message isn't displayed again each interval, and the previous channel's messages don't leak into the new one.
                 var node = document.createElement("li");
                 node.setAttribute("id", content.id);
                 node.className = "list-group-item border-0";
@@ -89,7 +103,9 @@
                     ids.shift();
                 }
             }
-        }, 200);
+        }
+
+        let intervalId = setInterval(fetchMessages, rate);
 
         //channel search
         function search() {
@@ -110,11 +126,38 @@
             var punc = name[name.length - 1] == "s" ? "'" : "'s";
             document.getElementById("channel").innerHTML = name;
             document.getElementById("connectionMsg").innerHTML = "Relaying " + name + punc + " chatroom";
+            if (stopped)
+                stop();
         }
 
-        //filter
+        function setFilter() {
+            var u = document.getElementById("userSearch").value;
+            var i = document.getElementById("includes").value;
+            var e = document.getElementById("excludes").value;
+
+            (u.length != 0 || !u.match(/^\s*$/)) ?
+                usernameFilter = document.getElementById("userSearch").value.toUpperCase().split(/[\s,]+/) : usernameFilter.length = 0;
+
+            (i.length != 0 || !i.match(/^\s*$/)) ?
+                includes = document.getElementById("includes").value.toUpperCase().split(/[\s,]+/) : includes.length = 0;
+
+            (e.length != 0 || !e.match(/^\s*$/)) ?
+                excludes = document.getElementById("excludes").value.toUpperCase().split(/[\s,]+/) : excludes.length = 0;
+        }
+
+        function clearFilter() {
+            usernameFilter.length = 0;
+            includes.length = 0;
+            excludes.length = 0;
+            document.getElementById("userSearch").value = "";
+            document.getElementById("includes").value = "";
+            document.getElementById("excludes").value = "";
+        }
+
         function filter(content) {
-            return true;
+            return (usernameFilter.includes(content.user.toUpperCase()) || usernameFilter.length == 0) &&
+                (includes.some(m => content.message.toUpperCase().split(" ").includes(m)) || includes.length == 0) &&
+                (!excludes.some(m => content.message.toUpperCase().split(" ").includes(m)) || excludes.length == 0);
         }
 
         //clear the chat
@@ -123,9 +166,21 @@
             document.getElementById("messages").innerHTML = null;
         }
 
+        function stop() {
+            stopped = !stopped;
+            if (stopped) {
+                clearInterval(intervalId);
+                document.getElementById("pauseBtn").innerHTML = "&#x23F5 ";
+                document.getElementById("pauseBtn").className = "btn btn-outline-success"
+            } else {
+                intervalId = setInterval(fetchMessages, rate)
+                document.getElementById("pauseBtn").innerHTML = "&#x23F8";
+                document.getElementById("pauseBtn").className = "btn btn-outline-danger"
+            }
+        }
+
         //submit input also when enter is pressed
-        var input = document.getElementById("channelSearch");
-        input.addEventListener("keyup", function (event) {
+        document.getElementById("channelSearch").addEventListener("keyup", function (event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
                 document.getElementById("relayBtn").click();
